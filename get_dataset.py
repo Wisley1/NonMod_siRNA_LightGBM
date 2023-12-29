@@ -83,6 +83,4 @@ def get_dataset(filename,
     x = [np.array([i]) for i in x]
     y = [np.array(i) for i in y]
 
-    print(y)
-
     return x, y
