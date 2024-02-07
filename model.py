@@ -1,17 +1,12 @@
 from get_dataset import get_dataset
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import lightgbm as lgb
-import matplotlib.pylab as plt
 
 
 print('Loading data...')
-X, y = get_dataset(filename='Ivan-non-mod_3.csv',
-                   sense_column='Sensesequence',
-                   antisense_column='Antisensesequence',
-                   concentration_column='SiRNAConcentrationused, nM',
-                   efficacy_column='Biologicalactivity')
+X, y = get_dataset(filename='Datasets/Ivan-non-mod_3.csv')
 
 
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -39,7 +34,7 @@ print('Starting training...')
 # train
 gbm = lgb.train(params,
                 train_data,
-                num_boost_round=10000,
+                num_boost_round=500,
                 valid_sets=[valid_data])
 print()
 
@@ -48,27 +43,14 @@ print('Saving model...')
 gbm.save_model('model.txt')
 
 # predict
-print('Starting predicting...')
+print('Starting predicting...', end='\n\n')
 y_pred = gbm.predict(X_valid, num_iteration=gbm.best_iteration)
 
 # eval
-rmse_test = mean_squared_error(y_valid, y_pred) ** 0.5
-print(f'The RMSE of prediction is: {rmse_test}')
+rmse = mean_squared_error(y_valid, y_pred) ** 0.5
+mae = mean_absolute_error(y_valid, y_pred)
+r2s = r2_score(y_valid, y_pred)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print('RMSE:', round(rmse, 5))
+print('MAE:', round(mae, 5))
+print('R2 Score:', round(r2s, 5))
